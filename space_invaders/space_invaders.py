@@ -37,7 +37,7 @@ for i in range(num_of_enemies):
     enemyImg.append(pygame.image.load('enemy.png'))
     enemyX.append(random.randint(0, 735))
     enemyY.append(random.randint(50, 150))
-    enemyX_change.append(.5)
+    enemyX_change.append(1)
     enemyY_change.append(40)
 
 # laser
@@ -88,6 +88,18 @@ def isCollision(enemyX, enemyY, laserX, laserY):
         return True
     return False
 
+def speed_increase():
+    global score_value
+    if score_value < 20:
+        return 0.6
+    if score_value > 20:
+        return 1.2
+    if score_value > 50:
+        return 2.0
+    else:
+        return 2.4
+
+
 # game loop
 running = True
 while running:
@@ -128,12 +140,12 @@ while running:
                 enemyY[j] = 2000
             game_over_text()
             break
-        enemyX[i]+= enemyX_change[i]
+        enemyX[i] += enemyX_change[i]
         if enemyX[i] <= 0:
-            enemyX_change[i] = 0.3
+            enemyX_change[i] = speed_increase()
             enemyY[i] += enemyY_change[i]
         elif enemyX[i] >= 784:
-            enemyX_change[i] = -0.3
+            enemyX_change[i] = -speed_increase()
             enemyY[i] += enemyY_change[i]
 
             # collision
