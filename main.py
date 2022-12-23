@@ -11,12 +11,16 @@ class Player(pygame.sprite.Sprite):
         self.player_index = 0
         self.player_jump = pygame.image.load("graphics/Player/jump.png")
         self.image = self.player_walk[self.player_index]
-        self.rect = self.image.get_rect(midbottom = (200, 300))
+        self.rect = self.image.get_rect(midbottom = (80, 300))
         self.gravity = 0
+
+        self.jump_sound = pygame.mixer.Sound('audio/jump.mp3')
+        self.jump_sound.set_volume(0.4)
 
     def player_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE] and self.rect.bottom >= 300:
+            self.jump_sound.play()
             self.gravity = -20
 
     def apply_gravity(self):
@@ -77,6 +81,13 @@ class Obstacle(pygame.sprite.Sprite):
         self.destroy()
 
 
+def collision_sprite():
+    collisions = pygame.sprite.spritecollide(player.sprite, obstacle_group, False)
+    if collisions:
+        obstacle_group.empty()
+        return True
+    return False
+
 def update_score():
     time = pygame.time.get_ticks() / 1000
     global test_font
@@ -110,7 +121,8 @@ def player_animation():
 # Initialize pygame
 pygame.init()
 screen = pygame.display.set_mode((800, 400))
-pygame.display.set_caption("Runner")
+music_track = pygame.mixer.Sound("audio/music.wav")
+pygame.display.set_caption("Mucus Man 3000")
 clock = pygame.time.Clock()
 test_font = pygame.font.Font("font/Pixeltype.ttf", 80)
 start_time = 0
@@ -194,9 +206,13 @@ pygame.time.set_timer(snail_animation_timer, 300)
 # Fly Animation timer
 fly_animation_timer = pygame.USEREVENT + 3
 pygame.time.set_timer(fly_animation_timer, 100)
+music = False
 
 # enter game loop
 while True:
+    if not music and game_active:
+        music_track.play(loops = -1)
+        music = True
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -270,17 +286,17 @@ while True:
         obstacle_group.update()
 
         # detect player and enemy collisions
-        if obstacle_rect_list:
-            for obstacle in obstacle_rect_list:
-                if player_rect.colliderect(obstacle):
-                    game_active = False
-                    game_lost = True
-                    break
+
+        if collision_sprite():
+            game_active = False
+            game_lost = True
 
     # display the intro/gameover screen
     if not game_active:
         screen.fill((94, 129, 162))
         screen.blit(player_stand, player_stand_rect)
+        music_track.stop()
+        music = False
 
         if game_lost:
             screen.blit(game_over_surface, game_over_rect)
@@ -290,6 +306,7 @@ while True:
             screen.blit(start_surface, start_rect)
 
     pygame.display.update()
+
     # setting framerate floor to 60 cycle/sec
     clock.tick(60)
 
@@ -299,4 +316,5 @@ while True:
 # use the convert method on images to help pygame handle them better and your game run faster.
 # use rectangles to calculate collisions
 # usr timer to randomize spawning enemies
+# sprite class makes everything easier
 
