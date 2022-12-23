@@ -85,8 +85,8 @@ class Ship:
             self.cooldown_counter += 1
 
     def shoot(self):
-        if self.cooldown_counter == 0:
-            laser = Laser(self.x - (self.get_width()/2), self.y, self.laser_image)
+        if self.cooldown_counter == 0 and self.y > 0:
+            laser = Laser(self.x, self.y, self.laser_image)
             self.lasers.append(laser)
             self.cooldown_counter = 1
 
@@ -127,6 +127,13 @@ class Player(Ship):
                         objs.remove(obj)
                         self.lasers.remove(laser)
 
+    def draw(self, window):
+        super().draw(window)
+        self.health_bar(window)
+
+    def health_bar(self, window):
+        pygame.draw.rect(window, (255, 0, 0), (self.x, self.y + self.ship_image.get_height() + 10, self.ship_image.get_width(),  10))
+        pygame.draw.rect(window, (0, 255, 0), (self.x, self.y + self.ship_image.get_height() + 10, self.ship_image.get_width() * (self.health / self.max_health), 10))
 
 def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
@@ -135,7 +142,7 @@ def collide(obj1, obj2):
 
 
 
-player = Player(300, 650)
+player = Player(300, 635)
 
 def main():
     run = True
@@ -187,7 +194,7 @@ def main():
             player.x += player_vel
         if keys[pygame.K_UP] and player.y - player_vel > 0:
             player.y -= player_vel
-        if keys[pygame.K_DOWN] and player.y + player_vel + player.get_height() < HEIGHT:
+        if keys[pygame.K_DOWN] and player.y + player_vel + player.get_height() + 15 < HEIGHT:
             player.y += player_vel
         if keys[pygame.K_SPACE]:
             player.shoot()
@@ -197,7 +204,7 @@ def main():
             enemy.move(enemy_vel)
             enemy.move_lasers(enemy_laser_vel, player)
 
-            if random.randrange(0, 2*60) == 1:
+            if random.randrange(0, 100) == 1:
                 enemy.shoot()
 
             if enemy.y + enemy.get_height() > HEIGHT:
