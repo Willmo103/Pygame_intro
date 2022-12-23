@@ -69,9 +69,21 @@ continue_rect = continue_surface.get_rect(center = (400, 350))
 start_surface = test_font.render("Press SPACE to start", False, (0, 0, 0))
 start_rect = start_surface.get_rect(center = (400, 350))
 
-# -- snail/ enemy
-snail_surface = pygame.image.load("graphics/snail/snail1.png").convert_alpha()
-fly_surface = pygame.image.load("graphics/Fly/Fly1.png").convert_alpha()
+# -- snail
+snail_frame_1 = pygame.image.load("graphics/snail/snail1.png").convert_alpha()
+snail_frame_2 = pygame.image.load("graphics/snail/snail2.png").convert_alpha()
+snail_frames_list = [snail_frame_1, snail_frame_2]
+snail_frame_index = 0
+snail_surface = snail_frames_list[snail_frame_index]
+
+# -- fly
+fly_frame_1 = pygame.image.load("graphics/Fly/Fly1.png").convert_alpha()
+fly_frame_2 = pygame.image.load("graphics/Fly/Fly2.png").convert_alpha()
+fly_frames_list = [fly_frame_1, fly_frame_2]
+fly_frame_index = 0
+fly_surface = fly_frames_list[fly_frame_index]
+
+
 obstacle_rect_list = []
 
 # -- player
@@ -90,10 +102,17 @@ player_stand = pygame.image.load("graphics/Player/player_stand.png").convert_alp
 player_stand = pygame.transform.rotozoom(player_stand, 0, 2.5)
 player_stand_rect = player_stand.get_rect(center = (400, 200))
 
-# Timer
+# Obstacle Timer
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer, 1500)
 
+# Snail Animation timer
+snail_animation_timer = pygame.USEREVENT + 2
+pygame.time.set_timer(snail_animation_timer, 300)
+
+# Fly Animation timer
+fly_animation_timer = pygame.USEREVENT + 3
+pygame.time.set_timer(fly_animation_timer, 100)
 
 # enter game loop
 while True:
@@ -115,14 +134,29 @@ while True:
                 player_gravity = 0
                 player_rect.midbottom = (80, 300)
 
-        if event.type == obstacle_timer and game_active:
-            rand = randint(1, 100)
-            if randint(0, 2):
-                obstacle_rect_list.append(snail_surface.get_rect(bottomright = (randint(900, 1100), 300)))
-            else:
-                obstacle_rect_list.append(fly_surface.get_rect(bottomright = (randint(900, 1100), 210)))
+        if game_active:
+            if event.type == obstacle_timer :
+                rand = randint(1, 100)
+                if randint(0, 2):
+                    obstacle_rect_list.append(snail_surface.get_rect(bottomright = (randint(900, 1100), 300)))
+                else:
+                    obstacle_rect_list.append(fly_surface.get_rect(bottomright = (randint(900, 1100), 210)))
 
-            print("new enemy")
+            if event.type == snail_animation_timer:
+                if snail_frame_index == 0:
+                    snail_frame_index = 1
+                else:
+                    snail_frame_index = 0
+                snail_surface = snail_frames_list[snail_frame_index]
+
+            if event.type == fly_animation_timer:
+                if fly_frame_index == 0:
+                    fly_frame_index = 1
+                else:
+                    fly_frame_index = 0
+                fly_surface = fly_frames_list[fly_frame_index]
+
+
 
     if game_active:
         # place BG Images
